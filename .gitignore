@@ -1,0 +1,5 @@
+log_*.txt
+*.csv
+build/
+dist/
+korys_tester_tools.egg-info/

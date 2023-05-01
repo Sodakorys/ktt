@@ -1,0 +1,4 @@
+pyserial==3.5
+telnetlib3==1.0.3
+libusb1==3.0.0
+pure-python-adb==0.3.0.dev0

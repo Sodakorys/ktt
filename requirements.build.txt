@@ -1,0 +1,2 @@
+versioneer==0.19
+sphinx==6.2.1

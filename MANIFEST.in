@@ -1,0 +1,2 @@
+include versioneer.py
+include ktt/version/_version.py
