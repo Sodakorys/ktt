@@ -125,11 +125,12 @@ class TesterCore:
         """
         self.cli = {"func": cli_func, "args": args, "kwargs": kwargs}
 
-    def get_cli(self, logname, cli_func=None, *args, **kwargs):
+    def get_cli(self, logname, *args, cli_func=None, **kwargs):
         """
         Returns an initialized cli object from a previously set_cli() call
         :param logname  String, path to the log for the cli object
-        :param cli_func     Pointer to a CliHandler like function (ex: SerialCli, TelnetCli, etc...).
+        :param cli_func     Pointer to a CliHandler like function (ex: SerialCli,
+                            TelnetCli, etc...).
                             **If not set, self.cli is used instead and args, kwargs are ignored.**
         :param args, kwargs Initialization parameters of the cli function
         """

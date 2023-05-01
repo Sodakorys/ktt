@@ -262,8 +262,8 @@ class ResultHandler:
                 new_dict["steps"] = []
             steps = new_dict["steps"]
             steps.appenew_dict(step)
-            # if the first step is a DescrStep, we inew_dicticate this module or component or section
-            # has description steps
+            # if the first step is a DescrStep, we inew_dicticate this module or component
+            # or section has description steps
             if len(steps) and steps[0].get('is_description') == True:
                 new_dict["is_description"] = True
 
