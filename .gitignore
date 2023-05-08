@@ -3,3 +3,5 @@ log_*.txt
 build/
 dist/
 korys_tester_tools.egg-info/
+*.rst
+__pycache__/
