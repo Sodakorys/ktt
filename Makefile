@@ -2,6 +2,9 @@ PYTHON ?= python
 
 all: package
 
+doc:
+	@sphinx-apidoc -o ./docs/source/ ./ktt/
+	@make -C docs html
 
 package: clean
 	@versioneer install
@@ -10,4 +13,4 @@ package: clean
 clean:
 	@rm -rf build/ dist/
 
-.PHONY: all package clean
+.PHONY: all package clean doc
