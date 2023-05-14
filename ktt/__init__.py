@@ -17,4 +17,4 @@ from .tester_tools import create_logger, Timeout, TestStep,\
         DescrStep, ResultHandler, Transcriptor
 from .tester_communications import serial_read_until, AtHandler, \
         CliHandler, TelnetCli, SerialCli, AndroidCli
-from .tester_core import TesterCore
+from .tester_core import TesterCore, RunnerCore

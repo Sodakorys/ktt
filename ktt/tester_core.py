@@ -34,7 +34,7 @@ import json
 import os
 import shutil
 import logging
-from threading import Semaphore
+from threading import Semaphore, Thread
 from .tester_tools import ResultHandler, create_logger
 
 
@@ -168,3 +168,75 @@ class TesterCore:
         Generates a csv file from ResultHandler
         """
         return self.results.write_csv(*args, **kwargs)
+
+
+class RunnerCore:
+    """
+    The Runner class permits to automate running functions defined
+    in a TesterCore class with parallel execution
+    """
+    def __init__(self, tester_core, jobs):
+        """
+        @param tester_core  A TesterCore object
+        @param jobs         number of parallel jobs available
+        """
+        self.tester = tester_core
+        self.jobs = Semaphore(jobs)
+        self.th_list = []
+
+    def _run_test(self, test):
+        """
+        Runs a single test if present in the TesterCore object
+        @param test     A dict, representing the function name from the TesterCore object
+                        Ex: `{"func": "function name", "args": ["arg1", "arg2"]}`
+        """
+        if not hasattr(self.tester, "test_" + test.get("func")):
+            logger.warning("Function %s not found", test.get("func"))
+            return
+        self.th_list.append(Thread(target=self._job_run, args=[test]))
+        self.th_list[-1].start()
+
+    def _job_run(self, test):
+        """
+        Wait for job to be available and run the function
+        @param test     A dict, representing the function name from the TesterCore object
+                        Ex: `{"func": "function name", "args": ["arg1", "arg2"]}`
+        """
+        func = getattr(self.tester, "test_" + test.get("func"))
+        with self.jobs:
+            logger.debug("Start %s", test.get("func"))
+            func(*test.get("args"))
+
+    def run(self, test_list, cnt=1):
+        """
+        Run all tests from a test_list once or more
+        @param test_list    A list of dict containing the functions to be called
+                            Ex: `{"func": "function name", "args": ["arg1", "arg2"]}`
+        @param cnt          The number of executions of the test list
+        """
+        for i in range(cnt):
+            logger.debug("--- iteration %d ---", i)
+            for test in test_list:
+                self._run_test(test)
+
+    def wait(self, only_one=True):
+        """
+        Wait for jobs to complete
+        @param only_one     Wait for one job to complete if True, wait for all jobs otherwise
+        """
+        logger.debug("wait for job to complete")
+        for job in self.th_list:
+            if job.is_alive():
+                continue
+            self.th_list.remove(job)
+            self.jobs.release()
+            if only_one:
+                return
+        # if no completed jobs, wait for one to complete
+        for job in self.th_list:
+            if not job.join(timeout=10):
+                continue
+            self.th_list.remove(job)
+            self.jobs.release()
+            if only_one:
+                return
