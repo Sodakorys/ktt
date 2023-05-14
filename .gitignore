@@ -5,3 +5,4 @@ dist/
 korys_tester_tools.egg-info/
 *.rst
 __pycache__/
+*.tar.gz
