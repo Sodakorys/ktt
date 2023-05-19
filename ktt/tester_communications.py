@@ -307,4 +307,4 @@ class AndroidCli(CliHandler):
         :param src_path     device source path
         :param dst_path     local destination path
         """
-        self.cli.push(src_path, dst_path)
+        self.cli.pull(src_path, dst_path)

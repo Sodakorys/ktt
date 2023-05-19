@@ -176,12 +176,12 @@ class TesterCore:
 class RunnerCore:
     """
     The Runner class permits to automate running functions defined
-    in a TesterCore class with parallel execution
+    in a TesterCore class with parallel execution.
     """
-    def __init__(self, tester_core, jobs):
+    def __init__(self, tester_core, jobs=1):
         """
         @param tester_core  A TesterCore object
-        @param jobs         number of parallel jobs available
+        @param jobs         number of parallel jobs available (default = 1)
         """
         self.tester = tester_core
         self.jobs = Semaphore(jobs)
