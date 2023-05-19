@@ -31,13 +31,10 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 import os
-import sys
-import subprocess as sp
 import csv
 import logging
 from threading import Timer
-from time import sleep, time
-from serial import Serial
+from time import time
 
 
 logger = logging.getLogger("TesterTools")
@@ -141,7 +138,7 @@ class TestStep:
     Simple object to define your Test and store its results
     """
 
-    def __init__(self, name, module, test_logger=None, index=None):
+    def __init__(self, name, module, test_logger=None, index=None, **kwargs):
         """
         Simple TestStep object to construct a dict with Test type, result, etc...
         :param name:         Test name
@@ -155,6 +152,8 @@ class TestStep:
         self.header = "[{:.8}".format(module)
         self.header += "]"
         self.step["index"] = index if index else "-"
+        if kwargs:
+            self.append(**kwargs)
         self.step.update({'test': name.replace(",", "|"), 'duration': time()})
 
         self.log.info("%s start %s", self.header, name)
@@ -249,8 +248,11 @@ class ResultHandler:
         base_dict = {'result': self.global_res}
         for step in self.steps:
             new_dict = base_dict
-            for s in ['module', 'component', 'section']:
-                elem = step.get(s)
+            field_list = list(step.keys())
+            for rm_elem in ['index', 'test', 'duration', 'result', 'Comments']:
+                field_list.remove(rm_elem)
+            for field in field_list:
+                elem = step.get(field)
                 if not elem:
                     break
                 if not new_dict.get(elem):
@@ -262,10 +264,10 @@ class ResultHandler:
             if not new_dict.get("steps"):
                 new_dict["steps"] = []
             steps = new_dict["steps"]
-            steps.appenew_dict(step)
+            steps.append(step)
             # if the first step is a DescrStep, we inew_dicticate this module or component
             # or section has description steps
-            if len(steps) and steps[0].get('is_description') == True:
+            if len(steps) and steps[0].get('is_description') is True:
                 new_dict["is_description"] = True
 
         return base_dict
