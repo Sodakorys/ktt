@@ -456,22 +456,3 @@ class Transcriptor:
             return "ERROR: FUNCTION NOT FOUND"
         function = getattr(self, func)
         return function(len(func) + 1, step)
-
-
-if __name__ == '__main__':
-    logger = create_logger("my_fake_test")
-    # create result handler
-    rh = ResultHandler(logger)
-
-    # Start Testing
-    step = TestStep("Test name", "my module", "my component", test_logger=logger)
-    step.set_result(False, "My test comment")
-    rh.append_test(step)
-
-    # another way of making tests
-    rh.set_step('my module', 'my component', 'test name')
-    rh.set_result(True, "my test comment")
-
-    rh.write_csv("my_fake_test.csv")
-
-    quit(0 if rh.get_global_result() else 1)
