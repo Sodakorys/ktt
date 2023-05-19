@@ -183,7 +183,8 @@ class TestStep:
 
 class DescrStep(TestStep):
     """
-    Simple object to describe a TestStep description, with no result
+    Simple object to handle a TestStep as a description, not a test result.
+    This is used for latex generation in the #Transcriptor class.
     """
     def __init__(self, *argv, **kwargs):
         # ensure no log is visible for description steps

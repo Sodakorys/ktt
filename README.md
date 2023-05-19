@@ -4,17 +4,29 @@ This package serves as a toolbox + framework to help making simple python tests 
 The main purpose is HW validation.
 
 
+## Setup
+
+install the requirements:
+For local testing
+```
+python3 -m pip install -r requirements.txt
+```
+
+For package generation, documentation, etc...
+```
+python3 -m pip install -r requirements.build.txt
+```
+
 ## Generate package
 
 ```
 make package
 ```
 
-## Setup (for local testing)
+## Generate documentation
 
-install the requirements:
 ```
-python3 -m pip install -r requirements.txt
+make doc
 ```
 
 ## Implementation

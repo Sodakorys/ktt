@@ -56,6 +56,7 @@ class TesterCore:
     def __init__(self, config, logger_name, logdir="./logs"):
         """
         Loads a json config with list of hw modules and their dependencies
+        ```
         ex:
         {
           "module1": {"depends": ["module2"] },
@@ -63,6 +64,7 @@ class TesterCore:
           "module3": {"depends": [] },
           ...
         }
+        ```
         :warning --> Never put circular dependencies (module1 -> module2 -> module1)
         :param config       String path to the json config file
         :param logger_name  String logger name for ResultHandler.
@@ -89,6 +91,7 @@ class TesterCore:
         Locks the module, if part of the TesterCore loaded modules, and all of its dependent modules
         :param module  String, module name
         """
+        # TODO: implement it to be usable as a "with" for more security (will unlock when exits)
         if module not in self.modules.keys():
             logger.warning("Cannot lock %s, not part of the module list",module)
             return False
