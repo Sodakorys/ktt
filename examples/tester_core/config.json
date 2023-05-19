@@ -1,0 +1,5 @@
+{
+  "SLEEP": {},
+  "PRINT": {},
+  "PRINT_SLEEP": {"depends": ["SLEEP", "PRINT"]}
+}
