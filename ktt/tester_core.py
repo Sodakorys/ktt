@@ -184,8 +184,9 @@ class RunnerCore:
         @param jobs         number of parallel jobs available (default = 1)
         """
         self.tester = tester_core
-        self.jobs = Semaphore(jobs)
+        self.jobs = Semaphore(0)
         self.th_list = []
+        self.max_jobs = jobs
 
     def _run_test(self, test):
         """
@@ -217,29 +218,30 @@ class RunnerCore:
                             Ex: `{"func": "function name", "args": ["arg1", "arg2"]}`
         @param cnt          The number of executions of the test list
         """
+        self.jobs = Semaphore(len(test_list) if not self.max_jobs else self.max_jobs)
         for i in range(cnt):
             logger.debug("--- iteration %d ---", i)
             for test in test_list:
                 self._run_test(test)
 
-    def wait(self, only_one=True):
+    def _clean_dead_job(self, job):
+        if job.is_alive():
+            return
+        self.th_list.remove(job)
+        self.jobs.release()
+
+    def wait(self, blocking=True):
         """
-        Wait for jobs to complete
-        @param only_one     Wait for one job to complete if True, wait for all jobs otherwise
+        Wait for jobs to complete.
+        Returns True if at least a job has been freed.
+        Returns False if no job has completed.
+        @param blocking     Wait for one job to complete if False, wait for all jobs otherwise
         """
         logger.debug("wait for job to complete")
-        for job in self.th_list:
-            if job.is_alive():
-                continue
-            self.th_list.remove(job)
-            self.jobs.release()
-            if only_one:
-                return
+        completed = False
+        t_out = None if blocking else 0.5
         # if no completed jobs, wait for one to complete
         for job in self.th_list:
-            if not job.join(timeout=10):
-                continue
-            self.th_list.remove(job)
-            self.jobs.release()
-            if only_one:
-                return
+            job.join(timeout=t_out)
+            completed |= self._clean_dead_job(job)
+        return completed
