@@ -6,28 +6,14 @@ The main purpose is HW validation.
 
 ## Setup
 
-install the requirements:
-For local testing
+Download the [latest whl package](https://github.com/Sodakorys/ktt/releases/latest).
+
+Then:
 ```
-python3 -m pip install -r requirements.txt
+tar xf ktt_vXX.tar.gz
+python3 -m pip install dist/korys_tester_tools-*.whl
 ```
 
-For package generation, documentation, etc...
-```
-python3 -m pip install -r requirements.build.txt
-```
-
-## Generate package
-
-```
-make package
-```
-
-## Generate documentation
-
-```
-make doc
-```
 
 ## Implementation
 
@@ -39,3 +25,31 @@ TestStep:       Small object that handle each test from its start to its result
 ResultHandler:  Higher class to handle multiple TestSteps and order them by module/components and generate a csv
 Transcriptor:   Using the ResultHandler setps, capable to generate a LaTex report provided you implemnt your default text for each kind of component
 CliHandler:     Simple console handler, capable to handle both serial and Telnet consoles. Stores in parallel in a logfile.
+
+
+## Developpement / contribution
+
+### Setup
+
+install the requirements:
+For local testing
+```
+python3 -m pip install -r requirements.txt
+```
+
+For package generation, documentation, etc...
+```
+python3 -m pip install -r requirements.build.txt
+```
+
+### Generate package
+
+```
+make package
+```
+
+### Generate documentation
+
+```
+make doc
+```
