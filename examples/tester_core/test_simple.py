@@ -14,7 +14,7 @@ tester = SimpleClass("config.json", "mytest")
 
 runner = RunnerCore(tester)
 runner.run(test_lst)
-runner.wait(only_one=False)
+runner.wait()
 
 print("ALL DONE")
 quit(0)

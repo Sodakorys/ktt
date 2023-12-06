@@ -226,9 +226,10 @@ class RunnerCore:
 
     def _clean_dead_job(self, job):
         if job.is_alive():
-            return
+            return False
         self.th_list.remove(job)
         self.jobs.release()
+        return True
 
     def wait(self, blocking=True):
         """
