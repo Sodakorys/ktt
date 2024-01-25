@@ -34,7 +34,8 @@ import json
 import os
 import shutil
 import logging
-from threading import Semaphore, Thread
+from time import sleep
+from threading import Semaphore, Thread, RLock
 from .tester_tools import ResultHandler, create_logger
 
 
@@ -73,6 +74,7 @@ class TesterCore:
         """
         with open(config, "r", encoding='utf-8') as file:
             self.modules = json.load(file)
+        self._lock = RLock()
         # add a semaphore to all modules
         for mod in self.modules.keys():
             self.modules[mod]["lock"] = Semaphore(1)
@@ -86,22 +88,43 @@ class TesterCore:
             shutil.rmtree(logdir)
         os.mkdir(logdir)
 
+    def _get_deps(self, module, mlist=[]):
+        if module not in self.modules.keys():
+            logger.warning("Cannot lock %s, not part of the module list",module)
+            return mlist
+        # if any dependency, lock the module
+        for submodule in self.modules[module].get("depends"):
+            mlist = self._get_deps(submodule, mlist=mlist)
+        mlist.append(module)
+        return list(set(mlist))
+
+    def _try_lock(self, mod_list):
+        with self._lock:
+            # lock the modules
+            locked = []
+            for mod in mod_list:
+                logger.debug("locking: %s", mod)
+                if self.modules[mod]["lock"].acquire(blocking=False):
+                    locked.append(mod)
+                    continue
+                # one module not locked, unlock and stop
+                for lk in locked:
+                    self.modules[lk]["lock"].release()
+                return False
+            return True
+
     def lock(self, module):
         """
         Locks the module, if part of the TesterCore loaded modules, and all of its dependent modules
         :param module  String, module name
         """
-        # TODO: implement it to be usable as a "with" for more security (will unlock when exits)
-        if module not in self.modules.keys():
-            logger.warning("Cannot lock %s, not part of the module list",module)
+        mlist = self._get_deps(module, mlist=[])
+        if not mlist:
             return False
-        # if any dependency, lock the module
-        for submodule in self.modules[module].get("depends"):
-            self.lock(submodule)
-        # lock the module
-        locked = self.modules[module]["lock"].acquire()
-        logger.debug("locked: %s", module)
-        return locked
+        while not self._try_lock(mlist):
+            #print(f"== {module} LK failed, wait/retry ==")
+            sleep(0.5)
+        return True
 
     def unlock(self, module):
         """
@@ -109,16 +132,14 @@ class TesterCore:
         dependent modules.
         :param module  String, module name
         """
-        if module not in self.modules.keys():
-            logger.warning("Cannot unlock %s, not part of the module list", module)
+        mlist = self._get_deps(module, mlist=[])
+        if not mlist:
             return False
         # if any dependency, unlock them module
-        for submodule in self.modules[module].get("depends"):
-            self.unlock(submodule)
-        # lock the module
-        unlocked = self.modules[module]["lock"].release()
-        logger.debug("unlocked: %s", module)
-        return unlocked
+        for mod in mlist:
+            logger.debug("unlocking: %s", mod)
+            self.modules[mod]["lock"].release()
+        return True
 
     def set_cli(self, cli_func, *args, **kwargs):
         """
