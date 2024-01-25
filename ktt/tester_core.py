@@ -224,7 +224,8 @@ class RunnerCore:
             for test in test_list:
                 self._run_test(test)
 
-    def _clean_dead_job(self, job):
+    def _clean_dead_job(self, job, t_out):
+        job.join(timeout=t_out)
         if job.is_alive():
             return False
         self.th_list.remove(job)
@@ -239,10 +240,12 @@ class RunnerCore:
         @param blocking     Wait for one job to complete if False, wait for all jobs otherwise
         """
         logger.debug("wait for job to complete")
-        completed = False
+        th_list_len = len(self.th_list)
         t_out = None if blocking else 0.5
-        # if no completed jobs, wait for one to complete
-        for job in self.th_list:
-            job.join(timeout=t_out)
-            completed |= self._clean_dead_job(job)
-        return completed
+        # wait for job to complete. If not finished, keep it in the thread list
+        job_idx = 0
+        while job_idx < len(self.th_list):
+            if not self._clean_dead_job(self.th_list[job_idx], t_out):
+                # job is alive, we check next one
+                job_idx += 1
+        return th_list_len > len(self.th_list)
