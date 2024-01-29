@@ -51,12 +51,12 @@ logger.setLevel(logging.INFO)
 def serial_read_until(tty, expected, timeout_ms, block_size=32, blocking=False):
     """
     Read from a serial port until expected char found,
-    or no new char arrives during timeout time.
-    Warning: Timeout is reset for each new char received.
+    or no new char received until timeout timer reached.
+    Warning: Timeout timer is reset for each new char received.
     :param tty:         An initialized Serial object to read from.
                         It must have been initialized with timeout=0
     :param expected:    Expected string value
-    :param timeout_ms:  Timeout in ms for new char to come on serial port
+    :param timeout_ms:  Timeout in ms for new char to be read from the serial port
     :param blocking:    If set, "timeout_ms" is the maximum time to receive new char.
                         If not set, "timeout_ms" is the maximum time for the function to terminate.
     :return:            True if expected string found else False
@@ -124,7 +124,7 @@ class AtHandler:
         """
         Read from the AT serial port
         :param expected:    Expected string value
-        :param timeout_ms:  Timeout in ms for the exected value to occur on serial AT port
+        :param timeout_ms:  Timeout in ms for the expected value to occur on serial AT port
         :return:            True if expected string found else False
         """
         # Wait for answer and read it

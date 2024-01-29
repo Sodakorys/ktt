@@ -51,7 +51,7 @@ class TesterCore:
     """
     This is to be considered as an abstract class.
     We should always inherit from it and complete your own Tester class
-    that implement your own tests.
+    that implements your own tests.
     """
 
     def __init__(self, config, logger_name, logdir="./logs"):
