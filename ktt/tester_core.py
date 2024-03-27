@@ -248,9 +248,9 @@ class RunnerCore:
     def _clean_dead_job(self, job, t_out):
         job.join(timeout=t_out)
         if job.is_alive():
+            print("job alive")
             return False
         self.th_list.remove(job)
-        self.jobs.release()
         return True
 
     def wait(self, blocking=True):
